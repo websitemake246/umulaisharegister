@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medarasatul Islam · نور multi-class with saved registers</title>
+    <title>Medarasatul Islam · نور multi-class with form inputs (no popups)</title>
     <!-- Google Fonts (Cairo + Space Grotesk) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -107,13 +107,19 @@
         .teacher-info h3 { font-size: 1.8rem; color: #ecd47c; }
         .teacher-info p { color: #b9c5a3; }
 
-        /* add student */
+        /* add student - now using form input, not prompt */
         .add-student-row {
             display: flex; gap: 1rem; align-items: center; background: #1d3a3a; border-radius: 70px; padding: 1rem 2rem; margin-bottom: 2rem; border: 1px solid #d4af37; flex-wrap: wrap;
         }
-        .add-student-row input { flex: 2; min-width: 250px; background: #0d2b2b; border: 1px solid #8f9f6f; border-radius: 60px; padding: 1rem 1.5rem; font-size: 1.2rem; color: white; outline: none; }
+        .add-student-row input { 
+            flex: 2; min-width: 250px; background: #0d2b2b; border: 1px solid #8f9f6f; border-radius: 60px; padding: 1rem 1.5rem; font-size: 1.2rem; color: white; outline: none; 
+        }
         .add-student-row input:focus { border-color: #f1c40f; }
-        .cool-add-btn { background: #d4af37; border: none; color: #0a2f2f; font-weight: 700; padding: 1rem 2.2rem; border-radius: 60px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .cool-add-btn { 
+            background: #d4af37; border: none; color: #0a2f2f; font-weight: 700; padding: 1rem 2.2rem; border-radius: 60px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .cool-add-btn:hover { background: #e5c356; box-shadow: 0 0 20px #f1c40f; }
 
         /* student grid */
         .students-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
@@ -175,7 +181,7 @@
         <div class="madrasa-header">
             <div class="title-section">
                 <div class="crescent-icon"><i class="fas fa-moon"></i></div>
-                <h1>مدرسة مدرسة الإسلام<br><span>Medarasatul Islam · permanent registers</span></h1>
+                <h1>مدرسة مدرسة الإسلام<br><span>Medarasatul Islam · form input (no popups)</span></h1>
             </div>
             <div class="date-box" id="globalDateDisplay"><i class="fas fa-calendar-alt"></i><span>loading...</span></div>
         </div>
@@ -184,8 +190,8 @@
         <div id="loginBlock" class="login-container">
             <div class="login-glass">
                 <div class="login-header"><i class="fas fa-lock"></i><i class="fas fa-key"></i></div>
-                <div class="input-field"><i class="fas fa-user"></i><input type="text" id="username" value="Khalid"></div>
-                <div class="input-field"><i class="fas fa-lock"></i><input type="password" id="password" value="Hassan"></div>
+                <div class="input-field"><i class="fas fa-user"></i><input type="text" id="username" value="Khalid" placeholder="Username"></div>
+                <div class="input-field"><i class="fas fa-lock"></i><input type="password" id="password" value="Hassan" placeholder="Password"></div>
                 <button class="login-btn" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Enter register</button>
                 <div class="demo-note"><i class="fas fa-star"></i> Use <span class="highlight">Khalid</span> / <span class="highlight">Hassan</span></div>
             </div>
@@ -226,9 +232,9 @@
                 <div><i class="fas fa-id-card" style="color:#d4af37; font-size:2rem;"></i></div>
             </div>
 
-            <!-- add student row -->
+            <!-- add student row - using INPUT FIELD, not prompt -->
             <div class="add-student-row">
-                <input type="text" id="newStudentName" placeholder="Enter student name (e.g. Aisha bint Abi Bakr)">
+                <input type="text" id="newStudentName" placeholder="Enter new student name (e.g. Aisha bint Abi Bakr)">
                 <button class="cool-add-btn" id="addStudentBtn"><i class="fas fa-plus-circle"></i> Add to this class</button>
             </div>
 
@@ -238,11 +244,11 @@
             </div>
             <div class="student-grid" id="studentGrid"></div>
 
-            <!-- SAVED REGISTERS SECTION (shows all saved attendance records) -->
+            <!-- SAVED REGISTERS SECTION -->
             <div class="saved-registers">
                 <div class="saved-header">
                     <i class="fas fa-archive" style="color:#d4af37; font-size:2rem;"></i>
-                    <h3>📁 Saved Registers (by date & class)</h3>
+                    <h3>📁 Saved Registers (click to view)</h3>
                 </div>
                 <div class="register-list" id="registerList">
                     <!-- dynamically populated -->
@@ -266,7 +272,7 @@
         (function() {
             const VALID_USER = "Khalid", VALID_PASS = "Hassan";
 
-            // ---------- DOM ----------
+            // DOM elements
             const loginBlock = document.getElementById('loginBlock');
             const registerContent = document.getElementById('registerContent');
             const loginBtn = document.getElementById('loginBtn');
@@ -292,7 +298,7 @@
             const registerList = document.getElementById('registerList');
             const refreshRegistersBtn = document.getElementById('refreshRegistersBtn');
 
-            // ---------- teacher data ----------
+            // teacher data
             const teachers = {
                 class1: { name: 'Ustadh Ahmed', desc: 'Class 1 · Quran & Tafseer', img: '👨‍🏫', color: '#d4af37' },
                 class2: { name: 'Ustadha Aisha', desc: 'Class 2 · Arabic & Fiqh', img: '👩‍🏫', color: '#c9a84b' },
@@ -301,9 +307,9 @@
                 class5: { name: 'Ustadh Yusuf', desc: 'Class 5 · Islamic History', img: '👳‍♂️', color: '#c7a445' }
             };
 
-            // ---------- data: classes with students, and saved registers ----------
+            // data
             let classesData = { class1: [], class2: [], class3: [], class4: [], class5: [] };
-            let savedRegisters = []; // array of { id, date, classKey, teacherName, students: [{ name, present }] }
+            let savedRegisters = [];
 
             // load from localStorage
             function loadAll() {
@@ -340,12 +346,10 @@
                 localStorage.setItem('savedAttendanceRegisters', JSON.stringify(savedRegisters));
             }
 
-            // current class helpers
             function getCurrentClass() { return classSelect.value; }
             function getCurrentStudents() { return classesData[getCurrentClass()] || []; }
             function updateCurrentStudents(newList) { classesData[getCurrentClass()] = newList; saveAllClasses(); }
 
-            // render teacher
             function renderTeacherCard() {
                 const cls = getCurrentClass();
                 const t = teachers[cls];
@@ -355,7 +359,6 @@
                 currentClassNameSpan.innerText = cls.replace('class', 'Class ');
             }
 
-            // render student grid
             function renderStudentGrid() {
                 const students = getCurrentStudents();
                 let html = '';
@@ -430,7 +433,6 @@
                 totalSpan.innerText = `total ${total}`;
             }
 
-            // mark all present
             function markAllPresent() {
                 const cls = getCurrentClass();
                 classesData[cls].forEach(s => s.present = true);
@@ -438,14 +440,13 @@
                 renderStudentGrid();
             }
 
-            // SAVE attendance as a permanent record
+            // SAVE attendance - using the input field, no prompt
             function saveCurrentRegister() {
                 const date = attendanceDate.value;
                 if (!date) { alert('Please select a date'); return; }
                 const cls = getCurrentClass();
                 const teacher = teachers[cls];
                 const students = getCurrentStudents();
-                // create a snapshot (copy names and present status)
                 const snapshot = students.map(s => ({ name: s.name, present: s.present }));
                 const register = {
                     id: Date.now() + Math.random(),
@@ -460,13 +461,11 @@
                 alert(`📌 Register for ${date} (${teacher.name}) saved permanently.`);
             }
 
-            // Render list of saved registers
             function renderRegisterList() {
                 if (savedRegisters.length === 0) {
                     registerList.innerHTML = '<div style="color:#a5b8b8;">No saved registers yet.</div>';
                     return;
                 }
-                // sort by date descending
                 const sorted = [...savedRegisters].sort((a,b) => b.date.localeCompare(a.date));
                 let html = '';
                 sorted.forEach(reg => {
@@ -479,7 +478,6 @@
                     `;
                 });
                 registerList.innerHTML = html;
-                // attach click to each to load that register into view (temporary display)
                 document.querySelectorAll('.register-item').forEach(item => {
                     item.addEventListener('click', (e) => {
                         const id = Number(item.dataset.regId);
@@ -489,12 +487,9 @@
                 });
             }
 
-            // Display a saved register in the student grid (read-only but shows names/present)
             function displaySavedRegister(register) {
-                // switch class dropdown to match (if needed)
                 classSelect.value = register.classKey;
                 renderTeacherCard();
-                // build read-only grid (no toggle, just visual)
                 const students = register.students;
                 let html = '';
                 students.forEach(s => {
@@ -513,34 +508,22 @@
                     `;
                 });
                 studentGrid.innerHTML = html;
-                // update counters
-                const total = students.length;
-                const present = students.filter(s => s.present).length;
-                presentSpan.innerText = `✅ ${present}`;
-                absentSpan.innerText = `❌ ${total - present}`;
-                totalSpan.innerText = `total ${total}`;
-                // disable add, delete, toggle? we just show a message but keep functionality for current class (user can switch class to edit)
-                // we are not disabling permanently, just visual. user can switch class again.
+                presentSpan.innerText = `✅ ${students.filter(s => s.present).length}`;
+                absentSpan.innerText = `❌ ${students.filter(s => !s.present).length}`;
+                totalSpan.innerText = `total ${students.length}`;
             }
 
-            // Refresh back to current class (editable)
             function refreshToCurrentClass() {
                 renderTeacherCard();
                 renderStudentGrid();
             }
 
-            // PDF download (always uses current grid display)
             function downloadPDF() {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 const cls = getCurrentClass();
                 const t = teachers[cls];
                 const date = attendanceDate.value || '____';
-                // Get students currently displayed (could be saved or current)
-                // We need to extract from grid? better to use getCurrentStudents() if in edit mode, but if viewing saved, we need the visible list.
-                // For simplicity, we'll use the students from the current grid (we have the array in memory? we can use classesData if not saved view)
-                // But saved view overwrites innerHTML. We'll detect if we are in saved mode? Use a flag? 
-                // Easiest: generate PDF from the current grid's text content.
                 const cards = document.querySelectorAll('#studentGrid .student-card');
                 let presentNames = [], absentNames = [];
                 cards.forEach(card => {
@@ -551,7 +534,6 @@
                         if (statusSpan.classList.contains('present-active')) presentNames.push(name);
                         else absentNames.push(name);
                     } else {
-                        // fallback
                         if (card.innerHTML.includes('✅ Present')) presentNames.push(name);
                         else absentNames.push(name);
                     }
@@ -585,15 +567,19 @@
                 doc.save(`attendance_${cls}_${date}.pdf`);
             }
 
+            // ADD STUDENT using the text input - NO PROMPT
             function addStudent() {
                 const name = newStudentName.value.trim();
-                if (!name) { alert('Enter name'); return; }
+                if (!name) {
+                    alert('Please enter a name in the field.');
+                    return;
+                }
                 const cls = getCurrentClass();
                 const newId = Date.now() + Math.random();
                 const avatar = name.charAt(0).toUpperCase();
                 classesData[cls].push({ id: newId, name, avatar, present: false });
                 saveAllClasses();
-                newStudentName.value = '';
+                newStudentName.value = '';  // clear input
                 renderStudentGrid();
             }
 
@@ -627,16 +613,19 @@
 
             classSelect.addEventListener('change', () => {
                 renderTeacherCard();
-                renderStudentGrid(); // loads current editable students
+                renderStudentGrid();
             });
 
             markAllPresentBtn.addEventListener('click', markAllPresent);
             saveBtn.addEventListener('click', saveCurrentRegister);
+            
+            // Using the input field, not prompt
             addStudentBtn.addEventListener('click', addStudent);
+            
             downloadPdfBtn.addEventListener('click', downloadPDF);
             refreshRegistersBtn.addEventListener('click', () => {
                 renderRegisterList();
-                refreshToCurrentClass(); // also reset to current class editable
+                refreshToCurrentClass();
             });
 
             attendanceDate.addEventListener('change', function() {
@@ -645,6 +634,14 @@
                     const d = new Date(parts[0], parts[1]-1, parts[2]);
                     globalDateSpan.innerText = d.toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' });
                 } else setTodayDate();
+            });
+
+            // Allow Enter key in the new student input to trigger add
+            newStudentName.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addStudent();
+                }
             });
 
             setTodayDate();
